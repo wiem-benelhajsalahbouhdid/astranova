@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASTRANOVA — Begin Your Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050810;--bg2:#0c0f1e;--surface:#111627;--surface2:#1a2035;
+  --accent1:#a78bfa;--accent2:#60a5fa;--accent3:#34d399;--accent4:#f472b6;
+  --gold:#fbbf24;--text:#eef2ff;--muted:#8b9cc8;--border:rgba(167,139,250,0.12);
+  --glow1:rgba(167,139,250,0.3);--glow2:rgba(96,165,250,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;}
+
+/* COSMOS BG */
+.cosmos{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.cosmos-bg{position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 20% -10%,rgba(96,165,250,0.12) 0%,transparent 50%),
+  radial-gradient(ellipse 60% 80% at 80% 110%,rgba(167,139,250,0.15) 0%,transparent 50%),
+  radial-gradient(ellipse 40% 40% at 50% 50%,rgba(52,211,153,0.04) 0%,transparent 60%);}
+.star{position:absolute;border-radius:50%;animation:sparkle var(--d,4s) ease-in-out infinite var(--del,0s);}
+@keyframes sparkle{0%,100%{opacity:var(--op,.4);transform:scale(1)}50%{opacity:.05;transform:scale(.3)}}
+/* Nebula blobs */
+.nebula{position:absolute;border-radius:50%;filter:blur(80px);animation:drift var(--nd,20s) ease-in-out infinite alternate;}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(var(--dx,20px),var(--dy,20px)) scale(1.1)}}
+
+/* LAYOUT */
+.left{width:55%;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px;position:relative;z-index:1;overflow:hidden;}
+.right{width:45%;height:100vh;background:rgba(17,22,39,0.6);backdrop-filter:blur(24px);border-left:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;padding:56px 52px;position:relative;z-index:1;overflow-y:auto;}
+
+/* LEFT CONTENT */
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:64px;align-self:flex-start;}
+.brand-icon{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 20px var(--glow1);}
+.brand-name{font-family:'Fraunces',serif;font-size:22px;font-weight:700;background:linear-gradient(135deg,var(--accent1),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.hero-text{text-align:center;}
+.hero-text h1{font-family:'Fraunces',serif;font-size:clamp(40px,5vw,64px);font-weight:300;line-height:1.1;margin-bottom:20px;}
+.hero-text h1 em{font-style:italic;background:linear-gradient(135deg,var(--accent1) 0%,var(--accent2) 50%,var(--accent3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;}
+.hero-text p{font-size:16px;color:var(--muted);line-height:1.7;max-width:360px;margin:0 auto 40px;}
+
+/* ORBIT VISUAL */
+.orbit-visual{position:relative;width:260px;height:260px;margin:0 auto;}
+.orbit-ring{position:absolute;border-radius:50%;border:1px solid;animation:rotate var(--rs,20s) linear infinite;}
+.orbit-ring-1{inset:0;border-color:rgba(167,139,250,0.15);--rs:25s;}
+.orbit-ring-2{inset:30px;border-color:rgba(96,165,250,0.12);--rs:18s;animation-direction:reverse;}
+.orbit-ring-3{inset:60px;border-color:rgba(52,211,153,0.1);--rs:12s;}
+.orbit-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.orbit-planet{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent2),var(--accent3));display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 40px var(--glow1),0 0 80px rgba(96,165,250,0.15);animation:pulse-planet 4s ease-in-out infinite;}
+@keyframes pulse-planet{0%,100%{box-shadow:0 0 40px var(--glow1),0 0 80px rgba(96,165,250,0.15)}50%{box-shadow:0 0 60px var(--glow1),0 0 120px rgba(96,165,250,0.25)}}
+.orbit-dot{position:absolute;width:10px;height:10px;border-radius:50%;top:50%;left:50%;}
+.orbit-dot-1{background:var(--accent3);transform-origin:-100px 0;animation:rotate 25s linear infinite;margin:-5px 0 0 -5px;}
+.orbit-dot-2{background:var(--accent4);transform-origin:-75px 0;animation:rotate 18s linear infinite reverse;margin:-5px 0 0 -5px;}
+.orbit-dot-3{background:var(--gold);transform-origin:-50px 0;animation:rotate 12s linear infinite;margin:-5px 0 0 -5px;}
+@keyframes rotate{from{transform:rotate(0deg) translateX(var(--radius,100px))}to{transform:rotate(360deg) translateX(var(--radius,100px))}}
+
+/* FEATURE PILLS */
+.feature-pills{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:32px;}
+.pill{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.04);border:1px solid var(--border);padding:7px 14px;border-radius:100px;font-size:12px;color:var(--muted);}
+.pill span:first-child{font-size:14px;}
+
+/* RIGHT FORM */
+.form-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px;}
+.form-logo span{font-family:'Fraunces',serif;font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent1),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.form-heading{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin-bottom:6px;}
+.form-heading em{font-style:italic;color:var(--accent1);}
+.form-sub{font-size:14px;color:var(--muted);margin-bottom:28px;}
+
+/* TABS */
+.tab-row{display:flex;background:var(--surface2);border-radius:14px;padding:4px;margin-bottom:28px;border:1px solid var(--border);}
+.tab{flex:1;padding:9px;text-align:center;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;color:var(--muted);border:none;background:transparent;font-family:'DM Sans',sans-serif;}
+.tab.on{background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(96,165,250,0.15));color:var(--text);border:1px solid rgba(167,139,250,0.25);}
+
+/* INPUTS */
+.fg{margin-bottom:16px;}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.fi{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:13px;padding:13px 16px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;transition:all .2s;outline:none;}
+.fi:focus{border-color:var(--accent1);background:rgba(167,139,250,0.06);box-shadow:0 0 0 3px rgba(167,139,250,0.08);}
+.fi::placeholder{color:var(--muted);}
+.fi-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pw-wrap{position:relative;}
+.pw-tog{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;}
+
+/* SUBMIT */
+.btn-sub{width:100%;padding:15px;border-radius:13px;background:linear-gradient(135deg,var(--accent1),var(--accent2));color:white;border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .3s;position:relative;overflow:hidden;margin-top:6px;}
+.btn-sub:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(167,139,250,0.4);}
+.btn-sub::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);pointer-events:none;}
+.btn-sub.loading .bt{display:none;} .btn-sub.loading .bl{display:flex;}
+.bl{display:none;justify-content:center;align-items:center;gap:5px;}
+.dl span{width:7px;height:7px;background:white;border-radius:50%;animation:db .6s ease infinite;}
+.dl span:nth-child(2){animation-delay:.12s;} .dl span:nth-child(3){animation-delay:.24s;}
+@keyframes db{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+
+/* OR DIVIDER */
+.or-div{display:flex;align-items:center;gap:14px;margin:18px 0;color:var(--muted);font-size:12px;}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* GOOGLE */
+.btn-google{width:100%;background:transparent;border:1px solid var(--border);color:var(--text);padding:13px;border-radius:13px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;}
+.btn-google:hover{border-color:var(--accent1);background:rgba(167,139,250,0.05);}
+
+/* FOOTER LINK */
+.form-foot{text-align:center;margin-top:20px;font-size:13px;color:var(--muted);}
+.form-foot a{color:var(--accent1);text-decoration:none;font-weight:600;}
+.form-foot a:hover{text-decoration:underline;}
+
+/* ERROR */
+.err{background:rgba(244,114,182,0.1);border:1px solid rgba(244,114,182,0.3);border-radius:10px;padding:11px 15px;font-size:13px;color:var(--accent4);margin-bottom:14px;display:none;}
+
+#reg-form{display:none;}
+</style>
+</head>
+<body>
+<!-- COSMOS -->
+<div class="cosmos">
+  <div class="cosmos-bg"></div>
+  <!-- nebulae -->
+  <div class="nebula" style="width:300px;height:300px;background:rgba(167,139,250,0.06);top:-5%;left:15%;--nd:22s;--dx:30px;--dy:20px;"></div>
+  <div class="nebula" style="width:400px;height:250px;background:rgba(96,165,250,0.05);bottom:5%;left:10%;--nd:28s;--dx:-20px;--dy:30px;"></div>
+</div>
+
+<div class="left" id="left-panel">
+  <div class="brand">
+    <div class="brand-icon">✦</div>
+    <div class="brand-name">ASTRANOVA</div>
+  </div>
+  <div class="hero-text">
+    <h1>Navigate your<br>path to the<br><em>stars</em></h1>
+    <p>From student to professional — your AI-powered career constellation, mapped and gamified.</p>
+    <div class="orbit-visual">
+      <div class="orbit-ring orbit-ring-1"></div>
+      <div class="orbit-ring orbit-ring-2"></div>
+      <div class="orbit-ring orbit-ring-3"></div>
+      <div class="orbit-center"><div class="orbit-planet">✦</div></div>
+      <div class="orbit-dot orbit-dot-1" style="--radius:100px"></div>
+      <div class="orbit-dot orbit-dot-2" style="--radius:75px"></div>
+      <div class="orbit-dot orbit-dot-3" style="--radius:50px"></div>
+    </div>
+    <div class="feature-pills">
+      <div class="pill"><span>🗺️</span>Personalized Roadmap</div>
+      <div class="pill"><span>🤖</span>AI Co-Pilot Ali</div>
+      <div class="pill"><span>🎮</span>Gamified Journey</div>
+      <div class="pill"><span>💼</span>Auto-Apply Jobs</div>
+    </div>
+  </div>
+</div>
+
+<div class="right">
+  <div class="form-logo">
+    <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 14px var(--glow1);">✦</div>
+    <span>ASTRANOVA</span>
+  </div>
+
+  <div class="form-heading" id="fh">Welcome <em>back</em></div>
+  <div class="form-sub" id="fs">Continue your mission — the stars are waiting</div>
+
+  <div class="tab-row">
+    <button class="tab on" onclick="swTab('login')">Sign In</button>
+    <button class="tab" onclick="swTab('register')">Create Account</button>
+  </div>
+
+  <div class="err" id="err-msg">⚠️ Invalid credentials. Please try again.</div>
+
+  <!-- LOGIN -->
+  <form id="login-form" onsubmit="doLogin(event)">
+    <div class="fg"><label class="fl">Email</label>
+      <input class="fi" type="email" id="le" placeholder="you@university.edu" required></div>
+    <div class="fg"><label class="fl">Password</label>
+      <div class="pw-wrap"><input class="fi" type="password" id="lp" placeholder="Your password" required>
+        <button type="button" class="pw-tog" onclick="togPw('lp',this)">👁</button></div></div>
+    <div style="text-align:right;margin-bottom:16px;"><a href="#" style="font-size:13px;color:var(--accent1);text-decoration:none;">Forgot password?</a></div>
+    <button type="submit" class="btn-sub" id="lbtn">
+      <span class="bt">Launch into ASTRANOVA ✦</span>
+      <span class="bl"><span class="dl"><span></span><span></span><span></span></span></span>
+    </button>
+    <div class="or-div">or</div>
+    <button type="button" class="btn-google" onclick="alert('Google OAuth coming soon!')">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <div class="form-foot">New to ASTRANOVA? <a href="#" onclick="swTab('register')">Create your account →</a></div>
+  </form>
+
+  <!-- REGISTER -->
+  <form id="reg-form" onsubmit="doRegister(event)">
+    <div class="fi-row">
+      <div class="fg"><label class="fl">First Name</label><input class="fi" type="text" id="rfn" placeholder="Yasmine" required></div>
+      <div class="fg"><label class="fl">Last Name</label><input class="fi" type="text" id="rln" placeholder="Ben Ali" required></div>
+    </div>
+    <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="re" placeholder="you@university.edu" required></div>
+    <div class="fg"><label class="fl">Password</label>
+      <div class="pw-wrap"><input class="fi" type="password" id="rp" placeholder="Min. 8 characters" required minlength="8">
+        <button type="button" class="pw-tog" onclick="togPw('rp',this)">👁</button></div></div>
+    <button type="submit" class="btn-sub" id="rbtn">
+      <span class="bt">Begin My Mission ✦</span>
+      <span class="bl"><span class="dl"><span></span><span></span><span></span></span></span>
+    </button>
+    <div class="form-foot" style="margin-top:14px;">By signing up you agree to our <a href="#">Terms</a></div>
+    <div class="form-foot">Already have an account? <a href="#" onclick="swTab('login')">Sign in →</a></div>
+  </form>
+</div>
+
+<script>
+// Stars
+(function(){const c=document.querySelector('.cosmos');for(let i=0;i<180;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()>0.9?3:Math.random()>0.7?2:1;s.style.cssText=`width:${sz}px;height:${sz}px;background:white;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;--del:-${Math.random()*5}s;--op:${0.1+Math.random()*0.5};`;c.appendChild(s);}})();
+
+function swTab(t){
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('on',(i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('login-form').style.display=t==='login'?'block':'none';
+  document.getElementById('reg-form').style.display=t==='register'?'block':'none';
+  document.getElementById('fh').innerHTML=t==='login'?'Welcome <em>back</em>':'Begin your <em>journey</em>';
+  document.getElementById('fs').textContent=t==='login'?'Continue your mission — the stars are waiting':'Create your account and launch into ASTRANOVA';
+  document.getElementById('err-msg').style.display='none';
+}
+
+function togPw(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
+
+async function doLogin(e){
+  e.preventDefault();
+  const btn=document.getElementById('lbtn');btn.classList.add('loading');
+  try{
+    const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:document.getElementById('le').value,password:document.getElementById('lp').value})});
+    const d=await r.json();
+    if(r.ok){window.location.href=d.redirect;}
+    else{document.getElementById('err-msg').style.display='block';}
+  }catch{window.location.href='/onboarding';}
+  btn.classList.remove('loading');
+}
+
+async function doRegister(e){
+  e.preventDefault();
+  const btn=document.getElementById('rbtn');btn.classList.add('loading');
+  try{
+    const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({first_name:document.getElementById('rfn').value,last_name:document.getElementById('rln').value,email:document.getElementById('re').value,password:document.getElementById('rp').value})});
+    const d=await r.json();
+    if(r.ok){window.location.href=d.redirect;}
+  }catch{window.location.href='/onboarding';}
+  btn.classList.remove('loading');
+}
+</script>
+</body>
+</html>

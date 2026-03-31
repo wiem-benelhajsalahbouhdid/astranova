@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASTRANOVA — Mission Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050810;--bg2:#0c0f1e;--surface:#111627;--surface2:#1a2035;
+  --accent1:#a78bfa;--accent2:#60a5fa;--accent3:#34d399;--accent4:#f472b6;
+  --gold:#fbbf24;--text:#eef2ff;--muted:#8b9cc8;--border:rgba(167,139,250,0.12);
+  --glow1:rgba(167,139,250,0.25);--sidebar:230px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 50% 40% at 20% 0%,rgba(167,139,250,0.07) 0%,transparent 55%),
+  radial-gradient(ellipse 40% 50% at 85% 80%,rgba(96,165,250,0.06) 0%,transparent 55%);}
+
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.star{position:absolute;border-radius:50%;animation:tw var(--d,3s) ease-in-out infinite var(--del,0s);opacity:var(--op,.2);}
+@keyframes tw{0%,100%{opacity:var(--op)}50%{opacity:.02}}
+
+/* ══ SIDEBAR ══ */
+.sidebar{width:var(--sidebar);min-height:100vh;background:rgba(17,22,39,.95);backdrop-filter:blur(20px);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:fixed;left:0;top:0;bottom:0;z-index:60;}
+.sb-logo{padding:0 20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.sb-logo-icon{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px var(--glow1);}
+.sb-logo-text{font-family:'Fraunces',serif;font-size:17px;font-weight:700;background:linear-gradient(135deg,var(--accent1),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+.sb-nav{flex:1;padding:16px 12px 0;}
+.sb-section{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:2.5px;padding:16px 8px 6px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:all .2s;color:var(--muted);font-size:13px;font-weight:500;margin-bottom:2px;text-decoration:none;position:relative;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.on{background:rgba(167,139,250,.12);color:var(--accent1);border:1px solid rgba(167,139,250,.15);}
+.nav-item.on::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:22px;background:var(--accent1);border-radius:0 4px 4px 0;}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--accent1);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;}
+.nav-badge.g{background:var(--gold);color:#000;}
+.sb-bottom{padding:16px 12px;}
+.user-pill{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .2s;}
+.user-pill:hover{border-color:rgba(167,139,250,.3);}
+.user-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:700;line-height:1.2;}
+.user-lvl{font-size:11px;color:var(--accent1);}
+.premium-icon{margin-left:auto;font-size:15px;}
+
+/* ══ MAIN ══ */
+.main{margin-left:var(--sidebar);flex:1;min-height:100vh;position:relative;z-index:1;}
+.topbar{height:62px;border-bottom:1px solid var(--border);background:rgba(5,8,16,.8);backdrop-filter:blur(24px);display:flex;align-items:center;padding:0 28px;gap:14px;position:sticky;top:0;z-index:40;}
+.tb-title{font-family:'Fraunces',serif;font-size:18px;font-weight:400;}
+.tb-title em{font-style:italic;color:var(--accent1);}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+/* XP bar */
+.xp-pill{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);padding:7px 16px;border-radius:100px;}
+.xp-lv{font-size:11px;font-weight:700;color:var(--accent1);}
+.xp-track{width:72px;height:4px;background:var(--surface2);border-radius:100px;overflow:hidden;}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent2));border-radius:100px;transition:width 1s ease;}
+.xp-ct{font-size:11px;color:var(--muted);}
+.streak-pill{display:flex;align-items:center;gap:6px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);padding:6px 14px;border-radius:100px;font-size:12px;color:var(--gold);font-weight:700;}
+.notif-btn{width:38px;height:38px;border-radius:11px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .2s;position:relative;}
+.notif-btn:hover{border-color:var(--accent1);}
+.notif-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--accent4);border-radius:50%;border:2px solid var(--bg);}
+
+/* ══ CONTENT ══ */
+.content{padding:28px;display:none;}
+.content.on{display:block;}
+
+/* grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px;}
+.card-sm{padding:16px 18px;}
+.ch{font-family:'Fraunces',serif;font-size:17px;font-weight:400;margin-bottom:3px;}
+.ch em{font-style:italic;color:var(--accent1);}
+.cs{font-size:12px;color:var(--muted);margin-bottom:18px;}
+
+/* stat cards */
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;transition:all .3s;cursor:default;position:relative;overflow:hidden;}
+.stat::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(167,139,250,.06),transparent 70%);opacity:0;transition:opacity .3s;}
+.stat:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.25);}
+.stat:hover::after{opacity:1;}
+.stat-ic{font-size:26px;margin-bottom:10px;}
+.stat-v{font-family:'Fraunces',serif;font-size:30px;font-weight:300;margin-bottom:3px;}
+.stat-lb{font-size:12px;color:var(--muted);}
+.stat-d{font-size:11px;color:var(--accent3);margin-top:3px;}
+
+.sec-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.sec-t{font-family:'Fraunces',serif;font-size:19px;font-weight:400;}
+.sec-t em{font-style:italic;color:var(--accent1);}
+.see-all{font-size:12px;color:var(--accent1);cursor:pointer;}
+
+/* ══ GALAXY ROADMAP ══ */
+.galaxy-wrap{position:relative;overflow:hidden;padding:20px 0 40px;}
+.galaxy-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(167,139,250,.04) 0%,transparent 70%);pointer-events:none;}
+
+/* Winding path */
+.mission-path{display:flex;flex-direction:column;gap:0;position:relative;padding-left:80px;}
+.path-spine{position:absolute;left:59px;top:30px;bottom:30px;width:2px;background:linear-gradient(180deg,var(--accent3) 0%,var(--accent2) 35%,rgba(167,139,250,.3) 65%,var(--border) 100%);}
+
+/* PLANET NODES */
+.planet-node{display:flex;gap:24px;align-items:flex-start;margin-bottom:0;position:relative;}
+.planet-node+.planet-node{margin-top:-8px;}
+.planet-node:nth-child(even) .planet-body{margin-left:20px;}
+
+.planet-orb{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;position:relative;z-index:2;transition:all .3s;cursor:pointer;}
+.planet-orb.done{box-shadow:0 0 0 2px var(--accent3),0 0 20px rgba(52,211,153,.3);}
+.planet-orb.active{animation:orbitPulse 2.5s ease infinite;box-shadow:0 0 0 2px var(--accent1),0 0 30px rgba(167,139,250,.5);}
+.planet-orb.locked{opacity:.3;filter:grayscale(.8);}
+@keyframes orbitPulse{0%,100%{box-shadow:0 0 0 2px var(--accent1),0 0 20px rgba(167,139,250,.4)}50%{box-shadow:0 0 0 3px var(--accent1),0 0 40px rgba(167,139,250,.7),0 0 60px rgba(167,139,250,.2)}}
+
+/* Planet types */
+.p-earth{background:radial-gradient(circle at 35% 35%,#22d3ee,#0891b2,#0c4a6e);}
+.p-mars{background:radial-gradient(circle at 35% 35%,#fb923c,#dc2626,#7c1d1d);}
+.p-neptune{background:radial-gradient(circle at 35% 35%,#818cf8,#4f46e5,#1e1b4b);}
+.p-saturn{background:radial-gradient(circle at 35% 35%,#fbbf24,#d97706,#78350f);box-shadow:0 0 0 8px rgba(251,191,36,.08),0 3px 0 12px rgba(251,191,36,.05);}
+.p-moon{background:radial-gradient(circle at 35% 35%,#d1d5db,#9ca3af,#4b5563);}
+.p-star{background:radial-gradient(circle at 50% 50%,#fef9c3,#fbbf24,#d97706);animation:starGlow 3s ease-in-out infinite alternate;}
+@keyframes starGlow{from{box-shadow:0 0 20px rgba(251,191,36,.5)}to{box-shadow:0 0 50px rgba(251,191,36,.8),0 0 80px rgba(251,191,36,.3)}}
+
+/* Planet card content */
+.planet-body{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:18px;padding:18px 22px;margin-bottom:28px;transition:all .2s;cursor:pointer;position:relative;}
+.planet-body:hover{border-color:rgba(167,139,250,.3);}
+.planet-body.current{border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.04);}
+.planet-body.current::before{content:'YOUR SHIP';position:absolute;top:-10px;left:16px;background:var(--accent1);color:white;font-size:9px;font-weight:800;letter-spacing:2px;padding:3px 10px;border-radius:100px;}
+
+.pn-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.pn-title{font-weight:700;font-size:15px;}
+.pn-badge{font-size:10px;padding:3px 10px;border-radius:100px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.nb-done{background:rgba(52,211,153,.12);color:var(--accent3);}
+.nb-active{background:rgba(167,139,250,.15);color:var(--accent1);}
+.nb-locked{background:var(--bg2);color:var(--muted);}
+
+.pn-desc{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+.pn-skills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.sk{font-size:11px;padding:3px 9px;background:var(--bg2);border-radius:100px;color:var(--muted);}
+.sk.d{background:rgba(52,211,153,.1);color:var(--accent3);}
+
+.pbar{height:4px;background:var(--bg2);border-radius:100px;overflow:hidden;margin-bottom:10px;}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent2));border-radius:100px;transition:width .8s ease;}
+
+.pn-actions{display:flex;gap:7px;margin-top:10px;}
+.btn-xs{padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.bx-p{background:var(--accent1);color:white;} .bx-p:hover{transform:scale(1.05);}
+.bx-o{background:transparent;border:1px solid var(--border);color:var(--muted);} .bx-o:hover{border-color:var(--accent2);color:var(--text);}
+
+/* XP reward tag on node */
+.xp-tag{position:absolute;right:14px;bottom:14px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);border-radius:100px;font-size:10px;font-weight:700;color:var(--gold);padding:3px 10px;}
+
+/* Avatar ship */
+.avatar-ship{position:absolute;left:-68px;top:50%;transform:translateY(-50%);z-index:10;}
+.ship{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:24px;border:3px solid rgba(255,255,255,.2);box-shadow:0 0 24px rgba(167,139,250,.6);animation:shipFloat 3.5s ease-in-out infinite;}
+@keyframes shipFloat{0%,100%{transform:translateY(-50%)}50%{transform:translateY(calc(-50% - 10px))}}
+.ship-trail{position:absolute;left:54px;top:50%;transform:translateY(-50%);display:flex;gap:3px;align-items:center;}
+.trail-dot{width:4px;height:4px;background:var(--accent1);border-radius:50%;animation:trailFade var(--td,1s) ease-in-out infinite;}
+.trail-dot:nth-child(2){--td:1.3s;opacity:.6;}
+.trail-dot:nth-child(3){--td:1.6s;opacity:.3;}
+@keyframes trailFade{0%,100%{opacity:var(--op,1)}50%{opacity:.1}}
+
+/* ══ ALI CHATBOT ══ */
+.chat-bubble{position:fixed;bottom:24px;right:24px;z-index:100;}
+.chat-btn{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent4));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 8px 32px rgba(167,139,250,.5);animation:chatFloat 4s ease-in-out infinite;}
+.chat-btn:hover{transform:scale(1.1) translateY(-4px);}
+@keyframes chatFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.chat-win{position:absolute;bottom:68px;right:0;width:368px;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.7);transform:scale(.85) translateY(20px);transform-origin:bottom right;opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+.chat-win.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all;}
+.chat-hd{background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(96,165,250,.12));padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.ali-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid rgba(255,255,255,.15);}
+.ali-nm{font-weight:700;font-size:14px;}
+.ali-st{font-size:11px;color:var(--accent3);display:flex;align-items:center;gap:5px;}
+.ali-dot{width:5px;height:5px;background:var(--accent3);border-radius:50%;animation:alidot 2s ease infinite;}
+@keyframes alidot{0%,100%{opacity:1}50%{opacity:.3}}
+.chat-msgs{height:270px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.msg{max-width:85%;padding:10px 14px;border-radius:15px;font-size:13px;line-height:1.55;}
+.msg-ali{background:var(--surface2);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start;}
+.msg-u{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:white;border-bottom-right-radius:4px;align-self:flex-end;}
+.typing{display:flex;gap:4px;padding:10px 14px;align-items:center;}
+.typing span{width:5px;height:5px;background:var(--muted);border-radius:50%;animation:tyd 1.2s ease infinite;}
+.typing span:nth-child(2){animation-delay:.2s;}.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes tyd{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+.chat-in{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:8px;}
+.chat-inp{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:9px 15px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;}
+.chat-inp:focus{border-color:var(--accent1);}
+.chat-inp::placeholder{color:var(--muted);}
+.chat-snd{width:36px;height:36px;border-radius:50%;background:var(--accent1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s;}
+.chat-snd:hover{transform:scale(1.1);}
+
+/* ══ SKILL TEST MODAL ══ */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.modal.open{opacity:1;pointer-events:all;}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:26px;padding:36px;width:100%;max-width:540px;transform:translateY(30px);transition:transform .3s;position:relative;}
+.modal.open .modal-box{transform:translateY(0);}
+.mcl{position:absolute;top:14px;right:14px;background:var(--surface2);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--muted);font-size:15px;display:flex;align-items:center;justify-content:center;}
+.test-pb{height:3px;background:var(--surface2);border-radius:100px;overflow:hidden;margin-bottom:22px;}
+.test-pbf{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent1));border-radius:100px;transition:width .4s;}
+.test-q{font-family:'Fraunces',serif;font-size:20px;font-weight:400;line-height:1.4;margin-bottom:22px;}
+.test-opts{display:flex;flex-direction:column;gap:9px;margin-bottom:22px;}
+.test-opt{background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:13px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;font-size:13px;transition:all .2s;}
+.test-opt:hover{border-color:var(--accent2);transform:translateX(3px);}
+.test-opt.sel{border-color:var(--accent1);background:rgba(167,139,250,.08);}
+.test-opt.ok{border-color:var(--accent3);background:rgba(52,211,153,.08);}
+.test-opt.ng{border-color:var(--accent4);background:rgba(244,114,182,.08);}
+.ok-l{width:28px;height:28px;border-radius:9px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;}
+.test-opt.sel .ok-l{background:var(--accent1);border-color:var(--accent1);color:white;}
+
+/* RESULT SCREEN */
+.result-wrap{text-align:center;padding:20px 0;}
+.result-planet{width:80px;height:80px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:36px;}
+.result-score{font-family:'Fraunces',serif;font-size:52px;font-weight:300;margin-bottom:6px;}
+.result-msg{font-size:15px;color:var(--muted);margin-bottom:24px;}
+.result-badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;}
+.rbadge{padding:7px 16px;border-radius:100px;font-size:12px;font-weight:700;}
+
+/* ══ OPPORTUNITIES ══ */
+.opp-card{background:var(--surface);border:1px solid var(--border);border-radius:17px;padding:20px;transition:all .3s;cursor:pointer;position:relative;overflow:hidden;}
+.opp-card:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.3);}
+.opp-match{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px;}
+.opp-title{font-weight:700;font-size:15px;margin-bottom:3px;}
+.opp-co{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.mbar{height:3px;background:var(--surface2);border-radius:100px;overflow:hidden;margin-bottom:10px;}
+.mbar-fill{height:100%;border-radius:100px;}
+.mfill-hi{background:linear-gradient(90deg,var(--accent3),#22c55e);}
+.mfill-md{background:linear-gradient(90deg,var(--gold),#f59e0b);}
+.opp-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.opp-tag{font-size:10px;padding:2px 8px;background:var(--surface2);border-radius:100px;color:var(--muted);}
+.prem-lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(5,8,16,.7);backdrop-filter:blur(3px);}
+.blur-c .opp-content{filter:blur(5px);pointer-events:none;}
+
+/* ══ ACADEMIC PLAN ══ */
+.acad-row{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 22px;margin-bottom:10px;display:flex;align-items:flex-start;gap:18px;transition:all .2s;cursor:pointer;}
+.acad-row:hover{border-color:rgba(167,139,250,.3);}
+.imp-badge{width:80px;flex-shrink:0;text-align:center;padding:5px;border-radius:10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
+.imp-critical{background:rgba(244,114,182,.12);color:var(--accent4);border:1px solid rgba(244,114,182,.3);}
+.imp-high{background:rgba(251,191,36,.1);color:var(--gold);border:1px solid rgba(251,191,36,.25);}
+.imp-medium{background:rgba(96,165,250,.1);color:var(--accent2);border:1px solid rgba(96,165,250,.2);}
+.imp-low{background:rgba(139,156,200,.1);color:var(--muted);border:1px solid var(--border);}
+.acad-info{flex:1;}
+.acad-title{font-weight:700;font-size:15px;margin-bottom:4px;}
+.acad-rel{font-size:12px;color:var(--accent3);margin-bottom:4px;}
+.acad-tip{font-size:12px;color:var(--muted);line-height:1.5;}
+.weight-bar{width:100px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.weight-num{font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:var(--accent1);}
+.weight-lbl{font-size:10px;color:var(--muted);}
+
+/* ══ CV CARD ══ */
+.cv-preview{background:linear-gradient(135deg,rgba(17,22,39,1),rgba(26,32,53,1));border:1px solid var(--border);border-radius:20px;padding:28px;position:relative;overflow:hidden;}
+.cv-preview::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:radial-gradient(circle,rgba(167,139,250,.1),transparent 70%);}
+.cv-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);padding:4px 12px;border-radius:100px;font-size:10px;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+.cv-skills{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0;}
+.cv-sk{padding:4px 12px;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2);border-radius:100px;font-size:12px;color:var(--accent2);}
+.cv-cert{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.18);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px;}
+.cv-strength{margin-top:16px;}
+.cs-bar{height:5px;background:var(--surface2);border-radius:100px;overflow:hidden;margin:8px 0;}
+.cs-fill{height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent3));border-radius:100px;}
+
+/* ══ PREMIUM CARD ══ */
+.prem-card{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(167,139,250,.06));border:1px solid rgba(251,191,36,.25);border-radius:20px;padding:28px;text-align:center;}
+.plist{display:flex;flex-direction:column;gap:8px;text-align:left;margin:16px 0;}
+.pi{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);}
+.pi span:first-child{color:var(--accent3);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#f59e0b);color:#000;font-weight:800;}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(251,191,36,.4);}
+
+/* ══ BUTTONS ══ */
+.btn{padding:10px 22px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.bp{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:white;}
+.bp:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(167,139,250,.35);}
+.bo{background:transparent;border:1px solid var(--border);color:var(--text);}
+.bo:hover{border-color:var(--accent1);color:var(--accent1);}
+
+/* ══ NOTIF PANEL ══ */
+.notif-panel{position:fixed;top:62px;right:0;width:350px;height:calc(100vh - 62px);background:rgba(17,22,39,.97);backdrop-filter:blur(24px);border-left:1px solid var(--border);z-index:70;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto;padding:22px;}
+.notif-panel.open{transform:translateX(0);}
+.np-item{background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:13px 15px;margin-bottom:9px;cursor:pointer;transition:all .2s;}
+.np-item:hover{border-color:rgba(167,139,250,.3);}
+.np-item.unread{border-left:3px solid var(--accent1);}
+.np-type{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:4px;}
+.np-title{font-size:13px;font-weight:700;margin-bottom:3px;}
+.np-msg{font-size:11px;color:var(--muted);line-height:1.4;}
+
+/* ══ TOAST / XP ══ */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 20px;display:flex;align-items:center;gap:12px;font-size:13px;z-index:300;opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(0,0,0,.6);white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.xpfl{position:fixed;bottom:140px;right:28px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);border-radius:100px;padding:8px 18px;font-size:14px;font-weight:800;color:var(--gold);z-index:300;opacity:0;transform:translateY(16px);transition:all .4s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.xpfl.show{opacity:1;transform:translateY(0);}
+
+/* LI MODAL */
+.li-draft{background:var(--surface2);border:1px solid rgba(96,165,250,.25);border-radius:14px;padding:18px;margin-bottom:18px;font-size:13px;line-height:1.7;}
+
+/* MEETING ALERT */
+.meet-alert{background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(167,139,250,.06));border:1px solid rgba(244,114,182,.25);border-radius:18px;padding:22px;display:flex;align-items:center;gap:18px;margin-bottom:20px;}
+.meet-av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 0 20px rgba(244,114,182,.35);}
+
+@media(max-width:900px){
+  .sidebar{width:60px;}.sb-logo-text,.nav-item>span:not(.nav-icon),.nav-badge,.user-name,.user-lvl,.premium-icon{display:none;}
+  .nav-item{justify-content:center;padding:12px;}.main{margin-left:60px;}
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:100px;}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon">✦</div>
+    <div class="sb-logo-text">ASTRANOVA</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Mission</div>
+    <a class="nav-item on" onclick="view('overview')"><span class="nav-icon">🌌</span><span>Mission Control</span></a>
+    <a class="nav-item" onclick="view('roadmap')"><span class="nav-icon">🪐</span><span>Galaxy Roadmap</span></a>
+    <a class="nav-item" onclick="view('skills')"><span class="nav-icon">⚡</span><span>Skills</span></a>
+    <a class="nav-item" onclick="view('opportunities')"><span class="nav-icon">💼</span><span>Opportunities</span><span class="nav-badge">4</span></a>
+    <div class="sb-section">Growth</div>
+    <a class="nav-item" onclick="view('academic')"><span class="nav-icon">🎓</span><span>Academic Plan</span></a>
+    <a class="nav-item" onclick="view('cv')"><span class="nav-icon">📄</span><span>My CV</span></a>
+    <a class="nav-item" onclick="view('resources')"><span class="nav-icon">📚</span><span>Resources</span></a>
+    <a class="nav-item" onclick="view('meetings')"><span class="nav-icon">📅</span><span>Meetings</span><span class="nav-badge g">1</span></a>
+    <div class="sb-section">Account</div>
+    <a class="nav-item" onclick="view('premium')"><span class="nav-icon">⭐</span><span>Go Premium</span></a>
+    <a class="nav-item" onclick="window.location='/login'"><span class="nav-icon">🚪</span><span>Log Out</span></a>
+  </nav>
+  <div class="sb-bottom">
+    <div class="user-pill">
+      <div class="user-av">🧙‍♀️</div>
+      <div><div class="user-name">Yasmine B.</div><div class="user-lvl">Lvl 4 · Explorer</div></div>
+      <div class="premium-icon">⭐</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-title" id="pg-title">Mission <em>Control</em> 🌌</div>
+    <div class="tb-right">
+      <div class="xp-pill">
+        <div class="xp-lv">Lvl 4</div>
+        <div class="xp-track"><div class="xp-fill" style="width:68%"></div></div>
+        <div class="xp-ct">340 XP</div>
+      </div>
+      <div class="streak-pill">🔥 12d</div>
+      <div class="notif-btn" onclick="toggleNotif()">🔔<div class="notif-dot"></div></div>
+    </div>
+  </div>
+
+  <!-- ═══ OVERVIEW ═══ -->
+  <div class="content on" id="v-overview">
+    <div class="g4" style="margin-bottom:20px;">
+      <div class="stat"><div class="stat-ic">🪐</div><div class="stat-v">4</div><div class="stat-lb">Level</div><div class="stat-d">↑ from 3</div></div>
+      <div class="stat"><div class="stat-ic">⚡</div><div class="stat-v">340</div><div class="stat-lb">XP</div><div class="stat-d">160 to Lvl 5</div></div>
+      <div class="stat"><div class="stat-ic">🎯</div><div class="stat-v">6</div><div class="stat-lb">Skills Mastered</div><div class="stat-d">2 in progress</div></div>
+      <div class="stat"><div class="stat-ic">💼</div><div class="stat-v">4</div><div class="stat-lb">Job Matches</div><div class="stat-d">↑ 2 new today</div></div>
+    </div>
+
+    <!-- Meeting alert -->
+    <div class="meet-alert">
+      <div class="meet-av">🤖</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:15px;margin-bottom:4px;">Ali wants to check in ⏰</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5;">You haven't submitted work this week. Ali scheduled a session to help you review your roadmap difficulty and get back on track.</div>
+        <button class="btn bp" onclick="toast('📅','Launching meeting with Ali…','Video session starting! 🤖')">Join Now →</button>
+      </div>
+      <button onclick="this.closest('.meet-alert').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;align-self:flex-start;">×</button>
+    </div>
+
+    <div class="g2" style="margin-bottom:20px;">
+      <!-- Quick Roadmap preview -->
+      <div class="card">
+        <div class="sec-hd"><div class="sec-t">Galaxy <em>Roadmap</em></div><a class="see-all" onclick="view('roadmap')">Full galaxy →</a></div>
+        <div class="galaxy-wrap" style="padding:10px 0 0;">
+          <div class="mission-path" style="padding-left:60px;">
+            <div class="path-spine" style="left:39px;top:20px;bottom:40px;"></div>
+            <!-- Node 1 done -->
+            <div class="planet-node">
+              <div class="planet-orb done p-earth" onclick="openTest('HTML & CSS',0)">🌍</div>
+              <div class="planet-body" style="margin-bottom:16px;">
+                <div class="pn-top"><div class="pn-title">HTML & CSS Foundations</div><div class="pn-badge nb-done">✓ Done</div></div>
+                <div class="pn-skills"><span class="sk d">HTML5</span><span class="sk d">CSS3</span><span class="sk d">Flexbox</span></div>
+              </div>
+            </div>
+            <!-- Node 2 active + avatar -->
+            <div class="planet-node" style="position:relative;">
+              <div class="avatar-ship"><div class="ship">🧙‍♀️</div><div class="ship-trail"><div class="trail-dot"></div><div class="trail-dot"></div><div class="trail-dot"></div></div></div>
+              <div class="planet-orb active p-neptune" onclick="openTest('React.js',1)" style="margin-left:24px;">🔮</div>
+              <div class="planet-body current" style="margin-bottom:16px;">
+                <div class="pn-top"><div class="pn-title">React.js — You're here!</div><div class="pn-badge nb-active">▶ Active</div></div>
+                <div class="pbar"><div class="pbar-fill" style="width:60%"></div></div>
+                <div class="pn-actions">
+                  <button class="btn-xs bx-p" onclick="openTest('React.js',1)">🎯 Take Test</button>
+                  <button class="btn-xs bx-o" onclick="view('roadmap')">Full map</button>
+                </div>
+              </div>
+            </div>
+            <!-- Node 3 locked -->
+            <div class="planet-node">
+              <div class="planet-orb locked p-saturn">🪐</div>
+              <div class="planet-body" style="opacity:.4;margin-bottom:0;">
+                <div class="pn-top"><div class="pn-title">TypeScript</div><div class="pn-badge nb-locked">🔒 Locked</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right col -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <!-- Ali tip card -->
+        <div class="card" style="background:linear-gradient(135deg,rgba(167,139,250,.07),rgba(96,165,250,.04));border-color:rgba(167,139,250,.2);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--accent1),var(--accent4));display:flex;align-items:center;justify-content:center;font-size:20px;">🤖</div>
+            <div><div style="font-weight:700;font-size:14px;">Ali's tip for today</div><div style="font-size:11px;color:var(--accent3);">● Online</div></div>
+          </div>
+          <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px;">"You're 60% through React — 2 more modules and you unlock TypeScript + 3 new job matches. Finish the hooks lesson today! It takes 45min. ⚡"</p>
+          <button class="btn bo" style="font-size:12px;padding:8px 16px;" onclick="openChat()">Ask Ali anything →</button>
+        </div>
+
+        <!-- Top opportunity -->
+        <div class="opp-card" onclick="view('opportunities')">
+          <div class="opp-match" style="color:var(--accent3);">🎯 92% Match — New Today!</div>
+          <div class="opp-title">Frontend Developer Intern</div>
+          <div class="opp-co">Vermeg · Tunis · Internship · 600 TND/mo</div>
+          <div class="mbar"><div class="mbar-fill mfill-hi" style="width:92%"></div></div>
+          <div class="opp-tags"><span class="opp-tag">React</span><span class="opp-tag">JavaScript</span><span class="opp-tag">CSS3</span></div>
+          <button class="btn bp" style="font-size:12px;padding:8px 18px;" onclick="event.stopPropagation();autoApply(this)">🤖 Auto-Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GALAXY ROADMAP ═══ -->
+  <div class="content" id="v-roadmap">
+    <div class="sec-hd" style="margin-bottom:24px;">
+      <div>
+        <div class="sec-t" style="font-size:26px;">Galaxy <em>Roadmap</em> 🪐</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Target: Frontend Engineer · 6 months · Your ship is en route</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div class="streak-pill">🏆 Lvl 4</div>
+        <div class="streak-pill" style="background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.2);color:var(--accent2);">⚡ 340 XP</div>
+        <div class="streak-pill">🔥 12d streak</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:20px;">
+      <div class="card galaxy-wrap" style="padding:32px;">
+        <div class="galaxy-bg"></div>
+        <div class="mission-path" style="padding-left:90px;">
+          <div class="path-spine" style="left:69px;"></div>
+
+          <!-- Planet 1: Done -->
+          <div class="planet-node">
+            <div class="planet-orb done p-earth" title="Completed! 🌍" onclick="openTest('HTML & CSS',0)">🌍</div>
+            <div class="planet-body">
+              <div class="pn-top"><div class="pn-title">HTML & CSS Foundations</div><div class="pn-badge nb-done">✓ 95%</div></div>
+              <div class="pn-desc">Semantic HTML, Flexbox, Grid, Responsive Design — mastered.</div>
+              <div class="pn-skills"><span class="sk d">HTML5</span><span class="sk d">CSS3</span><span class="sk d">Flexbox</span><span class="sk d">Grid</span></div>
+              <div class="xp-tag">+100 XP ✓</div>
+            </div>
+          </div>
+
+          <!-- Planet 2: Done -->
+          <div class="planet-node">
+            <div class="planet-orb done p-mars" onclick="openTest('JavaScript',0)">🔴</div>
+            <div class="planet-body">
+              <div class="pn-top"><div class="pn-title">JavaScript Essentials</div><div class="pn-badge nb-done">✓ 88%</div></div>
+              <div class="pn-desc">ES6+, DOM, async/await, Fetch API — all systems green.</div>
+              <div class="pn-skills"><span class="sk d">ES6+</span><span class="sk d">DOM</span><span class="sk d">Async</span><span class="sk d">Fetch</span></div>
+              <div class="xp-tag">+150 XP ✓</div>
+            </div>
+          </div>
+
+          <!-- Planet 3: ACTIVE — ship here -->
+          <div class="planet-node" style="position:relative;">
+            <div class="avatar-ship"><div class="ship">🧙‍♀️</div><div class="ship-trail"><div class="trail-dot"></div><div class="trail-dot"></div><div class="trail-dot"></div></div></div>
+            <div class="planet-orb active p-neptune" style="margin-left:24px;" title="Current mission!">🔮</div>
+            <div class="planet-body current">
+              <div class="pn-top"><div class="pn-title">React.js — Your current mission</div><div class="pn-badge nb-active">▶ 60%</div></div>
+              <div class="pn-desc">Components, Hooks, Router, Redux. 3 of 5 modules complete. You're almost there!</div>
+              <div class="pn-skills"><span class="sk d">Components</span><span class="sk d">useState</span><span class="sk d">useEffect</span><span class="sk">Router</span><span class="sk">Redux</span></div>
+              <div class="pbar"><div class="pbar-fill" style="width:60%"></div></div>
+              <div class="pn-actions">
+                <button class="btn-xs bx-p" onclick="openTest('React.js',1)">🎯 Skill Test</button>
+                <button class="btn-xs bx-o" onclick="changeDiff()">⚙️ Difficulty</button>
+                <button class="btn-xs bx-o" onclick="view('resources')">📚 Resources</button>
+              </div>
+              <div class="xp-tag">+200 XP on complete</div>
+            </div>
+          </div>
+
+          <!-- Planet 4: Locked -->
+          <div class="planet-node">
+            <div class="planet-orb locked p-saturn">🪐</div>
+            <div class="planet-body" style="opacity:.45;">
+              <div class="pn-top"><div class="pn-title">TypeScript + Testing</div><div class="pn-badge nb-locked">🔒 Locked</div></div>
+              <div class="pn-desc">Type safety, Jest, RTL. Unlocks after React.js completion.</div>
+              <div class="pn-skills"><span class="sk">TypeScript</span><span class="sk">Jest</span><span class="sk">RTL</span></div>
+              <div class="xp-tag">+200 XP</div>
+            </div>
+          </div>
+
+          <!-- Planet 5: Locked -->
+          <div class="planet-node">
+            <div class="planet-orb locked p-moon">🌑</div>
+            <div class="planet-body" style="opacity:.35;">
+              <div class="pn-top"><div class="pn-title">Advanced Patterns</div><div class="pn-badge nb-locked">🔒 Locked</div></div>
+              <div class="pn-skills"><span class="sk">Design Patterns</span><span class="sk">Performance</span><span class="sk">SSR</span></div>
+              <div class="xp-tag">+150 XP</div>
+            </div>
+          </div>
+
+          <!-- Planet 6: Final Star -->
+          <div class="planet-node">
+            <div class="planet-orb locked p-star">⭐</div>
+            <div class="planet-body" style="opacity:.25;">
+              <div class="pn-top"><div class="pn-title">Career Launch 🚀</div><div class="pn-badge nb-locked">🔒 Final Mission</div></div>
+              <div class="pn-desc">Portfolio, LinkedIn, interviews — launch into the professional world.</div>
+              <div class="xp-tag">+300 XP · FINALE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side info -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card card-sm">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Difficulty Mode</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <button class="btn-xs bx-o" onclick="setDiff('easy',this)" style="border-radius:10px;padding:8px;">🌱 Easy — More steps, slower pace</button>
+            <button class="btn-xs" onclick="setDiff('medium',this)" style="border-radius:10px;padding:8px;background:rgba(167,139,250,.15);border:1px solid var(--accent1);color:var(--text);">🔮 Medium — Balanced ✓</button>
+            <button class="btn-xs bx-o" onclick="setDiff('hard',this)" style="border-radius:10px;padding:8px;">🔥 Hard — Intense, max XP</button>
+          </div>
+        </div>
+        <div class="card card-sm" style="background:linear-gradient(135deg,rgba(251,191,36,.07),rgba(167,139,250,.04));border-color:rgba(251,191,36,.2);">
+          <div style="font-size:22px;margin-bottom:8px;">🏆</div>
+          <div style="font-weight:700;margin-bottom:4px;">Next Milestone</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;">Complete React.js → unlock TypeScript + <span style="color:var(--gold);">+200 XP</span> + 3 new job matches</div>
+        </div>
+        <div class="card card-sm">
+          <div style="font-weight:700;margin-bottom:10px;">Overall Journey</div>
+          <div class="pbar" style="height:6px;margin-bottom:6px;"><div class="pbar-fill" style="width:40%"></div></div>
+          <div style="font-size:12px;color:var(--muted);">2 of 6 planets conquered · 40%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SKILLS ═══ -->
+  <div class="content" id="v-skills">
+    <div class="sec-hd" style="margin-bottom:24px;">
+      <div class="sec-t" style="font-size:26px;">Your <em>Skills</em> ⚡</div>
+      <button class="btn bp" onclick="openTest('Custom',2)">+ Test a Skill</button>
+    </div>
+    <div class="g3">
+      <div class="card" style="border-color:rgba(52,211,153,.3);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div><div style="font-weight:700;font-size:16px;">HTML5 & CSS3</div><div style="font-size:11px;color:var(--accent3);margin-top:3px;">★ Advanced · Verified</div></div>
+          <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--accent3);">95</div>
+        </div>
+        <div class="pbar" style="height:5px;margin-bottom:6px;"><div class="pbar-fill" style="width:95%;background:linear-gradient(90deg,var(--accent3),#22c55e);"></div></div>
+        <div style="font-size:11px;color:var(--muted);">Added to CV · Tested ✓</div>
+      </div>
+      <div class="card" style="border-color:rgba(52,211,153,.3);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div><div style="font-weight:700;font-size:16px;">JavaScript ES6+</div><div style="font-size:11px;color:var(--accent3);margin-top:3px;">★ Intermediate · Verified</div></div>
+          <div style="font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--accent2);">88</div>
+        </div>
+        <div class="pbar" style="height:5px;margin-bottom:6px;"><div class="pbar-fill" style="width:88%;"></div></div>
+        <div style="font-size:11px;color:var(--muted);">Added to CV · Tested ✓</div>
+      </div>
+      <div class="card" style="border-color:rgba(167,139,250,.3);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+          <div><div style="font-weight:700;font-size:16px;">React.js</div><div style="font-size:11px;color:var(--accent1);margin-top:3px;">▶ In Progress — 60%</div></div>
+          <div style="font-size:22px;">🔮</div>
+        </div>
+        <div class="pbar" style="height:5px;margin-bottom:8px;"><div class="pbar-fill" style="width:60%;"></div></div>
+        <button class="btn-xs bx-p" onclick="openTest('React.js',1)">🎯 Test Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ OPPORTUNITIES ═══ -->
+  <div class="content" id="v-opportunities">
+    <div class="sec-hd" style="margin-bottom:24px;">
+      <div><div class="sec-t" style="font-size:26px;"><em>Opportunities</em> 💼</div><div style="font-size:12px;color:var(--muted);margin-top:4px;">Live matches · Updates as you level up</div></div>
+      <div style="display:flex;align-items:center;gap:7px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);padding:7px 14px;border-radius:100px;font-size:12px;color:var(--accent3);">🤖 Auto-apply ON</div>
+    </div>
+    <div class="g2">
+      <div class="opp-card">
+        <div class="opp-content">
+          <div class="opp-match" style="color:var(--accent3);">🎯 92% Match</div>
+          <div class="opp-title">Frontend Developer Intern</div>
+          <div class="opp-co">Vermeg · Tunis · Internship · 600 TND/mo</div>
+          <div class="mbar"><div class="mbar-fill mfill-hi" style="width:92%"></div></div>
+          <div class="opp-tags"><span class="opp-tag">React</span><span class="opp-tag">JavaScript</span><span class="opp-tag">CSS3</span></div>
+          <div style="display:flex;gap:8px;"><button class="btn bp" style="font-size:12px;" onclick="autoApply(this)">🤖 Auto-Apply</button><button class="btn bo" style="font-size:12px;">View →</button></div>
+        </div>
+      </div>
+      <div class="opp-card">
+        <div class="opp-content">
+          <div class="opp-match" style="color:var(--gold);">🎯 78% Match</div>
+          <div class="opp-title">UI Developer (Remote)</div>
+          <div class="opp-co">Remote First · Freelance · Negotiable</div>
+          <div class="mbar"><div class="mbar-fill mfill-md" style="width:78%"></div></div>
+          <div class="opp-tags"><span class="opp-tag">HTML5</span><span class="opp-tag">CSS3</span><span class="opp-tag">JS</span></div>
+          <div style="display:flex;gap:8px;"><button class="btn bp" style="font-size:12px;" onclick="autoApply(this)">🤖 Auto-Apply</button><button class="btn bo" style="font-size:12px;">View →</button></div>
+        </div>
+      </div>
+      <div class="opp-card blur-c">
+        <div class="opp-content">
+          <div class="opp-match" style="color:var(--accent3);">🎯 95% Match</div>
+          <div class="opp-title">React Developer</div>
+          <div class="opp-co">Instadeep · Tunis · 2,500–3,500 TND/mo</div>
+          <div class="mbar"><div class="mbar-fill mfill-hi" style="width:95%"></div></div>
+          <div class="opp-tags"><span class="opp-tag">React</span><span class="opp-tag">TypeScript</span></div>
+        </div>
+        <div class="prem-lock"><div style="font-size:22px;">⭐</div><div style="font-weight:700;font-size:14px;">Premium Feature</div><div style="font-size:11px;color:var(--muted);text-align:center;max-width:160px;">Unlock to see all high-match jobs</div><button class="btn btn-gold" style="font-size:12px;" onclick="view('premium')">Upgrade</button></div>
+      </div>
+      <div class="opp-card blur-c">
+        <div class="opp-content">
+          <div class="opp-match" style="color:var(--accent3);">🎯 89% Match</div>
+          <div class="opp-title">Junior Frontend Engineer</div>
+          <div class="opp-co">Sofrecom · Tunis · 2,000–3,000 TND/mo</div>
+        </div>
+        <div class="prem-lock"><div style="font-size:22px;">⭐</div><div style="font-weight:700;font-size:14px;">Premium</div><button class="btn btn-gold" style="font-size:12px;" onclick="view('premium')">Upgrade</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ACADEMIC PLAN ═══ -->
+  <div class="content" id="v-academic">
+    <div class="sec-t" style="font-size:26px;margin-bottom:8px;">Academic <em>Strategy</em> 🎓</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;max-width:560px;line-height:1.6;">AI-generated guide on how to maximize your university education for your career goal. These are the subjects that matter most for becoming a <strong style="color:var(--accent1);">Frontend Engineer</strong>.</div>
+    <div class="g2" style="margin-bottom:24px;">
+      <div class="card" style="background:rgba(244,114,182,.04);border-color:rgba(244,114,182,.2);">
+        <div style="font-size:24px;margin-bottom:8px;">⚠️</div>
+        <div style="font-weight:700;margin-bottom:4px;">Critical Subjects</div>
+        <div style="font-size:13px;color:var(--muted);">These courses directly map to technical interview questions and day-to-day work at tech companies.</div>
+      </div>
+      <div class="card" style="background:rgba(96,165,250,.04);border-color:rgba(96,165,250,.15);">
+        <div style="font-size:24px;margin-bottom:8px;">💡</div>
+        <div style="font-weight:700;margin-bottom:4px;">Ali's Insight</div>
+        <div style="font-size:13px;color:var(--muted);">Your GPA matters less than practical skills in tech. Focus energy on critical + high subjects and build projects with everything else.</div>
+      </div>
+    </div>
+    <div id="acad-list">
+      <div class="acad-row">
+        <div class="imp-badge imp-critical">Critical</div>
+        <div class="acad-info"><div class="acad-title">Algorithms & Data Structures</div><div class="acad-rel">🎯 Core requirement for ALL tech interviews</div><div class="acad-tip">Practice on LeetCode daily. Focus on arrays, trees, graphs, and dynamic programming.</div></div>
+        <div class="weight-bar"><div class="weight-num">95%</div><div class="weight-lbl">Career weight</div></div>
+      </div>
+      <div class="acad-row">
+        <div class="imp-badge imp-critical">Critical</div>
+        <div class="acad-info"><div class="acad-title">Software Engineering</div><div class="acad-rel">🎯 Design patterns & Agile used at every company</div><div class="acad-tip">Learn Git, agile methodology, clean code, and SOLID principles alongside your coursework.</div></div>
+        <div class="weight-bar"><div class="weight-num">90%</div><div class="weight-lbl">Career weight</div></div>
+      </div>
+      <div class="acad-row">
+        <div class="imp-badge imp-high">High</div>
+        <div class="acad-info"><div class="acad-title">Database Systems</div><div class="acad-rel">✓ Every software job needs SQL knowledge</div><div class="acad-tip">Build real projects with PostgreSQL or MySQL. SQL queries appear in 80% of interviews.</div></div>
+        <div class="weight-bar"><div class="weight-num">80%</div><div class="weight-lbl">Career weight</div></div>
+      </div>
+      <div class="acad-row">
+        <div class="imp-badge imp-high">High</div>
+        <div class="acad-info"><div class="acad-title">Operating Systems</div><div class="acad-rel">✓ Essential for understanding web & backend</div><div class="acad-tip">Focus on processes, memory management, threads. Conceptually important for debugging.</div></div>
+        <div class="weight-bar"><div class="weight-num">75%</div><div class="weight-lbl">Career weight</div></div>
+      </div>
+      <div class="acad-row">
+        <div class="imp-badge imp-medium">Medium</div>
+        <div class="acad-info"><div class="acad-title">Discrete Mathematics</div><div class="acad-rel">→ Important if targeting AI/ML later</div><div class="acad-tip">Focus on logic, sets, graph theory. More relevant if you pivot to data science.</div></div>
+        <div class="weight-bar"><div class="weight-num">60%</div><div class="weight-lbl">Career weight</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CV ═══ -->
+  <div class="content" id="v-cv">
+    <div class="sec-hd" style="margin-bottom:24px;">
+      <div class="sec-t" style="font-size:26px;">My <em>CV</em> 📄</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn bo" style="font-size:12px;" onclick="openLI()">📢 LinkedIn Post</button>
+        <button class="btn bp" style="font-size:12px;">⬇ Download PDF</button>
+      </div>
+    </div>
+    <div class="g2">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="cv-preview">
+          <div class="cv-badge">✓ Auto-synced with roadmap</div>
+          <div style="font-weight:800;font-size:18px;margin-bottom:4px;">Yasmine Ben Ali</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">CS Student @ ESPRIT · Aspiring Frontend Engineer</div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Verified Skills</div>
+          <div class="cv-skills"><span class="cv-sk">HTML5</span><span class="cv-sk">CSS3</span><span class="cv-sk">Flexbox</span><span class="cv-sk">JavaScript</span><span class="cv-sk">ES6+</span><span class="cv-sk">React.js</span></div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;">Certifications</div>
+          <div class="cv-cert"><span>🏆</span><div><div style="font-weight:700;font-size:13px;">Meta Front-End Developer</div><div style="font-size:11px;color:var(--muted);">Coursera · Feb 2025</div></div></div>
+          <div class="cv-strength"><div style="display:flex;justify-content:space-between;font-size:12px;"><span style="font-weight:700;">CV Strength</span><span style="color:var(--accent1);">72%</span></div><div class="cs-bar"><div class="cs-fill" style="width:72%;"></div></div><div style="font-size:11px;color:var(--muted);">Add 2 projects to reach 90%</div></div>
+        </div>
+        <button class="btn bo" style="font-size:13px;" onclick="openAddCert()">🏆 Add Certification</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="background:linear-gradient(135deg,rgba(0,115,177,.1),rgba(0,160,220,.04));border-color:rgba(0,160,220,.2);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <div style="width:34px;height:34px;border-radius:10px;background:#0072b1;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:white;">in</div>
+            <div style="font-weight:700;">Auto LinkedIn Post</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.65;border:1px solid var(--border);">
+            🎉 Thrilled to share I just earned the <strong>Meta Front-End Developer Certificate</strong>!<br>
+            This milestone brings me closer to my dream role. Every skill, every level. 🚀<br>
+            <span style="color:#00a0dc;">#LearningInPublic #React #CareerGrowth</span>
+          </div>
+          <div style="display:flex;gap:8px;"><button class="btn bp" style="font-size:12px;" onclick="postLI()">📢 Post Now</button><button class="btn bo" style="font-size:12px;">Edit Draft</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RESOURCES ═══ -->
+  <div class="content" id="v-resources">
+    <div class="sec-t" style="font-size:26px;margin-bottom:8px;">Curated <em>Resources</em> 📚</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">Hand-picked by Ali for your current React.js mission</div>
+    <div class="g3">
+      <div class="card" style="cursor:pointer;" onclick="toast('📚','Saved!','Added to your queue ✓')">
+        <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--accent3);margin-bottom:10px;">★ FREE</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">React Official Docs</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Most complete reference. Read the new react.dev — it's incredible.</div>
+        <div style="font-size:11px;color:var(--muted);">react.dev · ∞</div>
+      </div>
+      <div class="card" style="cursor:pointer;" onclick="toast('📚','Saved!','Added to your queue ✓')">
+        <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--accent3);margin-bottom:10px;">★ FREE</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">The Odin Project</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Project-based React curriculum loved by 100K+ developers.</div>
+        <div style="font-size:11px;color:var(--muted);">theodinproject.com · ~40h</div>
+      </div>
+      <div class="card" style="cursor:pointer;border-color:rgba(251,191,36,.2);" onclick="openLI()">
+        <div style="font-size:10px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:10px;">🏆 CERTIFICATE</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Meta Front-End Cert</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Industry-recognized. Completion auto-generates a LinkedIn post!</div>
+        <div style="font-size:11px;color:var(--muted);">Coursera · ~$50/mo · 7mo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MEETINGS ═══ -->
+  <div class="content" id="v-meetings">
+    <div class="sec-t" style="font-size:26px;margin-bottom:8px;">Weekly <em>Meetings</em> 📅</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">Premium · AI check-ins triggered when you need a boost</div>
+    <div class="meet-alert" style="margin-bottom:16px;">
+      <div class="meet-av">🤖</div>
+      <div style="flex:1;"><div style="font-weight:700;font-size:15px;margin-bottom:4px;">Check-in with Ali — Today 5:00 PM</div><div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Triggered: No tasks submitted this week. Ali will review your roadmap, discuss blockers, and adjust difficulty.</div><button class="btn bp" onclick="toast('📅','Joining…','Video session with Ali starting! 🤖')">Join Meeting</button></div>
+    </div>
+    <div class="card card-sm" style="opacity:.6;">
+      <div style="font-weight:600;margin-bottom:4px;">Past · Jan 25 2025</div>
+      <div style="font-size:13px;color:var(--muted);">Completed · Discussed React progress · Roadmap updated to Medium</div>
+    </div>
+  </div>
+
+  <!-- ═══ PREMIUM ═══ -->
+  <div class="content" id="v-premium">
+    <div class="sec-t" style="font-size:26px;margin-bottom:8px;">Unlock <em>Premium</em> ⭐</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:28px;">Everything you need to launch your career faster</div>
+    <div class="g2" style="max-width:760px;">
+      <div class="prem-card">
+        <div style="font-size:36px;margin-bottom:12px;">⭐</div>
+        <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:400;margin-bottom:6px;">Premium <em style="font-style:italic;color:var(--gold);">9.99 TND/mo</em></div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">Everything in free, plus:</div>
+        <div class="plist">
+          <div class="pi"><span>✓</span> All job matches + auto-apply</div>
+          <div class="pi"><span>✓</span> Weekly 1-on-1 meetings with Ali</div>
+          <div class="pi"><span>✓</span> Opportunity alerts near you</div>
+          <div class="pi"><span>✓</span> Roadmap difficulty adjustment</div>
+          <div class="pi"><span>✓</span> Unlimited skill tests + certifications</div>
+          <div class="pi"><span>✓</span> CV review & LinkedIn optimization</div>
+        </div>
+        <button class="btn btn-gold" style="width:100%;padding:14px;font-size:15px;" onclick="upgradePrem()">🌟 Upgrade to Premium</button>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;font-size:17px;margin-bottom:14px;">Free Plan</div>
+        <div class="plist">
+          <div class="pi"><span>✓</span> Basic roadmap (1 path)</div>
+          <div class="pi"><span>✓</span> 2 job matches/week</div>
+          <div class="pi"><span>✓</span> 3 skill tests/month</div>
+          <div class="pi"><span>✓</span> Ali chatbot (limited)</div>
+          <div class="pi" style="opacity:.4;"><span>✗</span> Auto-apply</div>
+          <div class="pi" style="opacity:.4;"><span>✗</span> Weekly meetings</div>
+          <div class="pi" style="opacity:.4;"><span>✗</span> Premium opportunities</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:14px;">You are on the Free plan</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- NOTIFICATIONS PANEL -->
+<div class="notif-panel" id="notif-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+    <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:400;">Notifications</div>
+    <button onclick="toggleNotif()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;">×</button>
+  </div>
+  <div class="np-item unread"><div class="np-type">💼 Opportunity</div><div class="np-title">92% match at Vermeg!</div><div class="np-msg">Frontend Intern · Your React skills are a perfect fit.</div></div>
+  <div class="np-item unread"><div class="np-type">⏰ Meeting — Premium</div><div class="np-title">Ali wants to check in</div><div class="np-msg">No tasks submitted this week. Session scheduled for today 5PM.</div></div>
+  <div class="np-item"><div class="np-type">⚡ Achievement</div><div class="np-title">Level 4 reached!</div><div class="np-msg">340 XP total. You're in the top 20% at your stage.</div></div>
+  <div class="np-item"><div class="np-type">📄 CV Updated</div><div class="np-title">React.js added to CV</div><div class="np-msg">Auto-synced after roadmap progress update.</div></div>
+</div>
+
+<!-- ALI CHATBOT -->
+<div class="chat-bubble">
+  <div class="chat-win" id="chat-win">
+    <div class="chat-hd">
+      <div class="ali-av">🤖</div>
+      <div><div class="ali-nm">Ali — Your Co-Pilot</div><div class="ali-st"><div class="ali-dot"></div> Online · Always here</div></div>
+    </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg msg-ali">Hey! 🌟 I'm Ali, your ASTRANOVA co-pilot. You're Level 4 with 340 XP — amazing progress! Ready to conquer the next planet? ✨</div>
+      <div class="msg msg-ali">I found a <strong>92% match job</strong> for you at Vermeg — want me to auto-apply with your latest CV? 🎯</div>
+    </div>
+    <div class="chat-in">
+      <input class="chat-inp" id="chat-inp" placeholder="Ask Ali anything…" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="chat-snd" onclick="sendMsg()">→</button>
+    </div>
+  </div>
+  <button class="chat-btn" id="chat-btn" onclick="openChat()">🤖</button>
+</div>
+
+<!-- SKILL TEST MODAL -->
+<div class="modal" id="test-modal">
+  <div class="modal-box">
+    <button class="mcl" onclick="closeM('test-modal')">×</button>
+    <div style="font-size:10px;font-weight:800;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;" id="test-tag">React.js · Skill Test</div>
+    <div class="test-pb"><div class="test-pbf" id="tpf" style="width:33%"></div></div>
+    <div class="test-q" id="tq">Which React Hook is used to manage local component state?</div>
+    <div class="test-opts" id="topts">
+      <div class="test-opt" onclick="selA(this,true)"><div class="ok-l">A</div>useState</div>
+      <div class="test-opt" onclick="selA(this,false)"><div class="ok-l">B</div>useEffect</div>
+      <div class="test-opt" onclick="selA(this,false)"><div class="ok-l">C</div>useContext</div>
+      <div class="test-opt" onclick="selA(this,false)"><div class="ok-l">D</div>useRef</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:12px;color:var(--muted);">Q <span id="qn">1</span> / 3</div>
+      <button class="btn bp" style="font-size:13px;" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT MODAL -->
+<div class="modal" id="result-modal">
+  <div class="modal-box">
+    <button class="mcl" onclick="closeM('result-modal')">×</button>
+    <div class="result-wrap">
+      <div class="result-planet p-neptune">🔮</div>
+      <div class="result-score" id="rs">90%</div>
+      <div class="result-msg" id="rm">Skill verified! React.js added to your CV. 3 new job matches unlocked!</div>
+      <div class="result-badges">
+        <div class="rbadge" style="background:rgba(52,211,153,.15);color:var(--accent3);">✓ Skill Verified</div>
+        <div class="rbadge" style="background:rgba(167,139,250,.15);color:var(--accent1);">+150 XP</div>
+        <div class="rbadge" style="background:rgba(251,191,36,.1);color:var(--gold);">CV Updated</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="btn bp" onclick="closeM('result-modal');openLI()">📢 Share on LinkedIn</button>
+        <button class="btn bo" onclick="closeM('result-modal')">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CERT MODAL -->
+<div class="modal" id="cert-modal">
+  <div class="modal-box">
+    <button class="mcl" onclick="closeM('cert-modal')">×</button>
+    <div style="font-family:'Fraunces',serif;font-size:24px;margin-bottom:6px;">Add <em style="font-style:italic;color:var(--accent1);">Certification</em></div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:22px;">CV + LinkedIn post auto-generated on add</div>
+    <div style="margin-bottom:14px;"><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:7px;">Certification Name</label><input type="text" id="cn" placeholder="Meta Front-End Developer" style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:13px;padding:13px 16px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;"></div>
+    <div style="margin-bottom:18px;"><label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:7px;">Issuer</label><input type="text" id="ci" placeholder="Coursera / Google / Meta" style="width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:13px;padding:13px 16px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;"></div>
+    <button class="btn bp" style="width:100%;padding:14px;font-size:14px;" onclick="addCert()">🏆 Add & Update Everything</button>
+  </div>
+</div>
+
+<!-- LINKEDIN MODAL -->
+<div class="modal" id="li-modal">
+  <div class="modal-box">
+    <button class="mcl" onclick="closeM('li-modal')">×</button>
+    <div style="font-size:11px;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">🤖 Ali drafted this post · 1-click publish</div>
+    <div class="li-draft">Thrilled to share I just earned the <strong>Meta Front-End Developer Certificate</strong> on Coursera! 🏆<br><br>This is a major milestone in my journey toward becoming a Frontend Engineer. One planet at a time. 🪐🚀<br><br><span style="color:#00a0dc;">#LearningInPublic #React #CareerGrowth #ASTRANOVA</span></div>
+    <div style="display:flex;gap:10px;"><button class="btn bp" onclick="postLI()">📢 Post to LinkedIn</button><button class="btn bo">Edit</button><button class="btn bo" onclick="closeM('li-modal')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div id="t-ic" style="font-size:20px;">✅</div>
+  <div><div id="t-ti" style="font-weight:700;margin-bottom:2px;"></div><div id="t-de" style="font-size:12px;color:var(--muted);"></div></div>
+</div>
+<div class="xpfl" id="xpfl">+100 XP ⚡</div>
+
+<script>
+// Stars
+const sc=document.getElementById('stars');
+for(let i=0;i<100;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()>.9?3:Math.random()>.7?2:1;s.style.cssText=`width:${sz}px;height:${sz}px;background:white;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*6}s;--del:-${Math.random()*6}s;--op:${.05+Math.random()*.3};`;sc.appendChild(s);}
+
+// VIEW SWITCHER
+const VT={'overview':'Mission <em>Control</em> 🌌','roadmap':'Galaxy <em>Roadmap</em> 🪐','skills':'Your <em>Skills</em> ⚡','opportunities':'<em>Opportunities</em> 💼','academic':'Academic <em>Strategy</em> 🎓','cv':'My <em>CV</em> 📄','resources':'<em>Resources</em> 📚','meetings':'Weekly <em>Meetings</em> 📅','premium':'Go <em>Premium</em> ⭐'};
+function view(id){
+  document.querySelectorAll('.content').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n=>{n.classList.remove('on');if(n.getAttribute('onclick')?.includes(`'${id}'`))n.classList.add('on');});
+  document.getElementById('v-'+id)?.classList.add('on');
+  document.getElementById('pg-title').innerHTML=VT[id]||id;
+  document.getElementById('notif-panel').classList.remove('open');
+}
+
+// NOTIFICATIONS
+function toggleNotif(){document.getElementById('notif-panel').classList.toggle('open');}
+
+// TOAST
+function toast(icon,title,desc,bc){
+  const t=document.getElementById('toast');
+  document.getElementById('t-ic').textContent=icon;
+  document.getElementById('t-ti').textContent=title;
+  document.getElementById('t-de').textContent=desc||'';
+  if(bc)t.style.borderColor=bc;
+  t.classList.add('show');
+  setTimeout(()=>{t.classList.remove('show');t.style.borderColor='';},3200);
+}
+function xpf(n){
+  const x=document.getElementById('xpfl');x.textContent=`+${n} XP ⚡`;
+  x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2200);
+}
+
+// MODALS
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+// SKILL TEST
+let qi=0,correct=0;
+const Qs=[
+  {q:'Which React Hook manages local component state?',opts:['useState','useEffect','useContext','useRef'],c:0},
+  {q:'What does JSX stand for in React development?',opts:['JavaScript XML','JavaScript Extensions','Java Syntax X','JS Extra'],c:0},
+  {q:'How do you pass data from parent to child in React?',opts:['Via props','Via state','Via refs only','Via events only'],c:0}
+];
+function openTest(skill,idx){
+  qi=0;correct=0;
+  document.getElementById('test-tag').textContent=skill+' · Skill Test';
+  loadQ();
+  document.getElementById('test-modal').classList.add('open');
+}
+function loadQ(){
+  const q=Qs[qi];
+  document.getElementById('tq').textContent=q.q;
+  document.getElementById('qn').textContent=qi+1;
+  document.getElementById('tpf').style.width=((qi+1)/Qs.length*100)+'%';
+  document.getElementById('topts').innerHTML=q.opts.map((o,i)=>`<div class="test-opt" onclick="selA(this,${i===q.c})"><div class="ok-l">${String.fromCharCode(65+i)}</div>${o}</div>`).join('');
+}
+function selA(el,ok){
+  document.querySelectorAll('.test-opt').forEach(o=>o.classList.remove('sel','ok','ng'));
+  el.classList.add(ok?'ok':'ng');
+  if(ok){correct++;xpf(30);}
+}
+function nextQ(){
+  qi++;
+  if(qi>=Qs.length){
+    const score=Math.round(correct/Qs.length*100);
+    closeM('test-modal');
+    document.getElementById('rs').textContent=score+'%';
+    document.getElementById('rm').textContent=score>=70?'Skill verified! CV updated. New job matches unlocked! 🚀':'Not quite — keep practicing and try again. You got this! 💪';
+    document.getElementById('result-modal').classList.add('open');
+    if(score>=70)xpf(150);
+    return;
+  }
+  loadQ();
+}
+
+// CHAT
+let chatOpen=false,aliI=0;
+const aliRs=[
+  "You're at Level 4 with 340 XP — impressive! Finish React.js to unlock TypeScript and 3 new job matches. Want tips on the hooks module? 🚀",
+  "Based on your CS background and Analytical personality, Frontend Developer is your top match at 91% compatibility. Vermeg is actively hiring for it! 💼",
+  "Your CV is auto-synced with every skill you master. You currently have 6 verified skills. Complete React to hit 7 and unlock premium opportunities. 📄",
+  "For your Algorithms subject — try LeetCode Easy for 20 min/day. It's critical for your career path and your academic plan rates it at 95% importance! 🎯",
+  "I found a new remote freelance opportunity today — 78% match, negotiable rate. Want me to prep your CV for that specific role? ✨"
+];
+function openChat(){chatOpen=!chatOpen;document.getElementById('chat-win').classList.toggle('open',chatOpen);}
+function sendMsg(){
+  const inp=document.getElementById('chat-inp');const msg=inp.value.trim();if(!msg)return;
+  const msgs=document.getElementById('chat-msgs');
+  msgs.innerHTML+=`<div class="msg msg-u">${msg}</div>`;
+  inp.value='';
+  const ty=document.createElement('div');ty.className='msg msg-ali';ty.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
+  msgs.appendChild(ty);msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{ty.innerHTML=aliRs[aliI%aliRs.length];aliI++;msgs.scrollTop=msgs.scrollHeight;},1100);
+}
+
+// AUTO APPLY
+function autoApply(btn){
+  btn.textContent='⏳ Applying…';btn.disabled=true;
+  setTimeout(()=>{btn.textContent='✓ Applied!';btn.style.background='var(--accent3)';toast('🤖','Auto-applied!','Your latest CV sent. Good luck! 🍀','rgba(52,211,153,.4)');xpf(50);},1400);
+}
+
+// CERT
+function openAddCert(){document.getElementById('cert-modal').classList.add('open');}
+function addCert(){
+  const n=document.getElementById('cn').value||'New Certification';
+  closeM('cert-modal');
+  toast('🏆','Certification Added!',n+' added to CV. LinkedIn post ready!');
+  xpf(200);
+  setTimeout(()=>document.getElementById('li-modal').classList.add('open'),2000);
+}
+
+// LINKEDIN
+function openLI(){document.getElementById('li-modal').classList.add('open');}
+function postLI(){closeM('li-modal');toast('📢','Posted!','Achievement live on LinkedIn! 🎉','rgba(0,160,220,.4)');}
+
+// PREMIUM
+function upgradePrem(){toast('⭐','Welcome to Premium!','All features unlocked! +500 XP 🌟','rgba(251,191,36,.4)');xpf(500);}
+
+// DIFFICULTY
+function setDiff(d,btn){
+  document.querySelectorAll('[onclick*="setDiff"]').forEach(b=>{b.style.background='transparent';b.style.border='1px solid var(--border)';b.style.color='var(--text)';b.className='btn-xs bx-o';});
+  btn.style.background='rgba(167,139,250,.15)';btn.style.border='1px solid var(--accent1)';
+  toast('⚙️','Difficulty: '+d,'Roadmap updated for '+d+' mode');
+}
+function changeDiff(){view('roadmap');}
+</script>
+</body>
+</html>
